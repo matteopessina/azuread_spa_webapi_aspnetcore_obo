@@ -56,6 +56,13 @@ namespace TodoListService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(o => o.AddPolicy("PermissiveCORSPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddProtectWebApiWithMicrosoftIdentityPlatformV2(Configuration)
                     .AddProtectedApiCallsWebApis(Configuration, new string[] { "user.read" })
                     .AddInMemoryTokenCaches();
@@ -81,6 +88,8 @@ namespace TodoListService
             {
                 app.UseHsts();
             }
+
+            app.UseCors("PermissiveCORSPolicy");
 
             app.UseHttpsRedirection();
             app.UseAuthentication();

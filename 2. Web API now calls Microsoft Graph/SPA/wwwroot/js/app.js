@@ -3,14 +3,6 @@ var clientApplication;
 
 (function () {
 
-    // Enter Global Config Values & Instantiate MSAL Client application
-    // tenant Id for single tenant app
-    // authority https://stackoverflow.com/a/47323987
-    window.config = {
-        clientID: '61305af3-245c-4e39-b918-72f49d9a7527',
-        authority: 'https://login.microsoftonline.com/organizations'
-    };
-
     function authCallback(errorDesc, token, error, tokenType) {
         //This function is called after loginRedirect and acquireTokenRedirect. Not called with loginPopup
         // msal object is bound to the window object after the constructor is called.

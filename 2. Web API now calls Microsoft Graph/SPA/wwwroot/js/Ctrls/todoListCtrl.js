@@ -2,14 +2,14 @@
 (function () {
     // The HTML for this View
     var viewHTML;
-    var scope = [window.config.clientID];
+    var scope = window.config.apiScopes;
 
     // Calls the TodoList Web API with an HTTP Bearer access request, and update data
     function getTodoList(accessToken, dataContainer, loading) {
         // Get TodoList Data
         $.ajax({
             type: "GET",
-            url: "/api/TodoList",
+            url: window.config.apiUrl + "/api/TodoList",
             headers: {
                 'Authorization': 'Bearer ' + accessToken,
             },
@@ -21,8 +21,8 @@
             // For Each Todo Item Returned, Append a Table Row
             var output = data.reduce(function (rows, todoItem, index, todos) {
                 var $entry = $template;
-                var $description = $entry.find(".view-data-description").html(todoItem.Description);
-                $entry.find(".data-template").attr('data-todo-id', todoItem.ID);
+                var $description = $entry.find(".view-data-description").html(todoItem.description);
+                $entry.find(".data-template").attr('data-todo-id', todoItem.id);
                 return rows + $entry.html();
             }, '');
 
@@ -45,7 +45,7 @@
         // Delete the Todo
         $.ajax({
             type: "DELETE",
-            url: "/api/TodoList/" + todoId,
+            url: window.config.apiUrl + "/api/TodoList/" + todoId,
             headers: {
                 'Authorization': 'Bearer ' + accessToken,
             },
@@ -64,14 +64,15 @@
         // Update Todo Item
         $.ajax({
             type: "PUT",
-            url: "/api/TodoList",
+            url: window.config.apiUrl + "/api/TodoList",
             headers: {
                 'Authorization': 'Bearer ' + accessToken,
             },
-            data: {
-                Description: description.val(),
-                ID: todoId,
-            },
+            data: JSON.stringify({
+                description: description.val(),
+                id: todoId,
+            }),
+            contentType: "application/json"
         }).done(function () {
             console.log('PUT success.');
         }).fail(function () {
@@ -182,13 +183,14 @@
         // POST a New Todo
         $.ajax({
             type: "POST",
-            url: "/api/TodoList",
+            url: window.config.apiUrl + "/api/TodoList",
             headers: {
                 'Authorization': 'Bearer ' + accesstoken,
             },
-            data: {
-                Description: description.val(),
-            },
+            data: JSON.stringify({
+                description: description.val(),
+            }),
+            contentType: "application/json"
         }).done(function () {
             console.log('POST success.');
         }).fail(function () {

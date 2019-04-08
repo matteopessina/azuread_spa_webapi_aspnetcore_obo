@@ -39,6 +39,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using TodoListService.Models;
+using TodoListService.Stores;
 
 namespace TodoListService.Controllers
 {
@@ -53,14 +54,14 @@ namespace TodoListService.Controllers
 
         readonly ITokenAcquisition _tokenAcquisition;
 
-        static readonly ConcurrentBag<TodoItem> TodoStore = new ConcurrentBag<TodoItem>();
+        static readonly TodoItemStore _todoStore = new TodoItemStore();
 
         // GET: api/values
         [HttpGet]
         public IEnumerable<TodoItem> Get()
         {
             string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return TodoStore.Where(t => t.Owner == owner).ToList();
+            return _todoStore.Where(t => t.Owner == owner).ToList();
         }
 
         // POST api/values
@@ -76,7 +77,9 @@ namespace TodoListService.Controllers
             {
                 ownerName = CallGraphApiOnBehalfOfUser().GetAwaiter().GetResult();
                 string title = string.IsNullOrWhiteSpace(ownerName) ? todo.Title : $"{todo.Title} ({ownerName})";
-                TodoStore.Add(new TodoItem { Owner = owner, Title = title });
+                todo.Title = title;
+                todo.Owner = owner;
+                _todoStore.Add(todo);
             }
             catch (MsalException ex)
             {
@@ -93,6 +96,39 @@ namespace TodoListService.Controllers
 #endif
 
         }
+
+        [HttpPut]
+        public ActionResult<TodoItem> Put([FromBody]TodoItem newTodoItem)
+        {
+            string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var oldTodoItem = _todoStore.Find(x => x.Owner == owner && x.Id == newTodoItem.Id);
+
+            if (oldTodoItem == null)
+            {
+                return NotFound();
+            }
+
+            oldTodoItem.Description = newTodoItem.Description;
+            return Ok(oldTodoItem);
+        }
+
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] int id) 
+        {
+            string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var oldTodoItem = _todoStore.Find(x => x.Owner == owner && x.Id == id);
+
+            if (oldTodoItem == null)
+            {
+                return NotFound();
+            }
+
+            _todoStore.Remove(oldTodoItem);
+
+            return Ok();
+        }
+
 
         public async Task<string> CallGraphApiOnBehalfOfUser()
         {

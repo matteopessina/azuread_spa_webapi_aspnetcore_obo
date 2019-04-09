@@ -60,13 +60,16 @@ namespace TodoListService
             {
                 builder.AllowAnyOrigin()
                        .AllowAnyMethod()
-                       .AllowAnyHeader();
+                       .AllowAnyHeader()
+                       // this allow the clients using CORS to read www-authenticate header
+                       // in order to allow the client to show consent page on behalf of web api
+                       .WithExposedHeaders("www-authenticate");
             }));
 
             services.AddProtectWebApiWithMicrosoftIdentityPlatformV2(Configuration)
                     .AddProtectedApiCallsWebApis(Configuration, new string[] { "user.read" })
                     .AddInMemoryTokenCaches();
-                    ;
+                    
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

@@ -211,7 +211,12 @@ namespace TodoListClient
             }
             else if (proposedAction == "consent")
             {
-                IPublicClientApplication pca = PublicClientApplicationBuilder.Create(clientId)
+                IPublicClientApplication pca = PublicClientApplicationBuilder.CreateWithApplicationOptions(
+                    new PublicClientApplicationOptions()
+                    {
+                        ClientId = clientId,
+                        RedirectUri = TodoListBaseAddress
+                    })
                     .Build();
                 await pca.AcquireTokenInteractive(scopes, loginHint)
                     .WithPrompt(Prompt.Consent)

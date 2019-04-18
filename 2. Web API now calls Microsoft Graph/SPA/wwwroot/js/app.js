@@ -7,6 +7,7 @@ var clientApplication;
         //This function is called after loginRedirect and acquireTokenRedirect. Not called with loginPopup
         // msal object is bound to the window object after the constructor is called.
         if (token) {
+            log(token);
         }
         else {
             log(error + ":" + errorDesc);

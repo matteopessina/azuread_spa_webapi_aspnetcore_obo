@@ -2,8 +2,8 @@
 // tenant Id for single tenant app
 // authority https://stackoverflow.com/a/47323987
 window.config = {
-    clientID: '61305af3-245c-4e39-b918-72f49d9a7527',
-    authority: 'https://login.microsoftonline.com/organizations',
+    clientID: '2845f347-270b-4695-a5f2-0ce39060156a',
+    authority: 'https://login.microsoftonline.com/20558054-2a0b-4ee1-83b2-c8ba15d8c786',
     apiUrl: 'https://localhost:44351',
-    apiScopes: ['api://846d54ff-824b-41c6-b09d-ff9df8651c86/access_as_user']
+    apiScopes: ['api://65b0f32b-233b-4c04-a896-35e4f872fcad/access_as_user']
 };

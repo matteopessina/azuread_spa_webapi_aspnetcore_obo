@@ -69,6 +69,17 @@ namespace TodoListService.Controllers
         public async void Post([FromBody]TodoItem todo)
         {
             string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var claims = new List<Claim>()
+            {
+                new Claim("customClaim", "sample value")
+            };
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims);
+
+            User.AddIdentity(claimsIdentity);
+
+
             string ownerName;
 #if ENABLE_OBO
             // This is a synchronous call, so that the clients know, when they call Get, that the 
@@ -132,7 +143,7 @@ namespace TodoListService.Controllers
 
         public async Task<string> CallGraphApiOnBehalfOfUser()
         {
-            string[] scopes = { "user.read" };
+            string[] scopes = { "user.read", "directory.read.all" };
 
             // we use MSAL.NET to get a token to call the API On Behalf Of the current user
             try
@@ -156,12 +167,24 @@ namespace TodoListService.Controllers
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             HttpResponseMessage response = await client.GetAsync("https://graph.microsoft.com/v1.0/me");
+            HttpResponseMessage response2 = await client.GetAsync("https://graph.microsoft.com/v1.0/me/memberOf");
+
+            
+
             string content = await response.Content.ReadAsStringAsync();
+
+            string content2 = await response2.Content.ReadAsStringAsync();
+
+            dynamic groups = JsonConvert.DeserializeObject(content2);
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 dynamic me = JsonConvert.DeserializeObject(content);
                 return me;
             }
+
+
+            
 
             throw new Exception(content);
         }
